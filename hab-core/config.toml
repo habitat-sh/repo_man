@@ -143,6 +143,10 @@ color = "d62f3f"
 mappings = [ "C-breaking" ]
 
 [[label]]
+name = "T-observability"
+color = "d62f3f"
+
+[[label]]
 name = "P-1"
 color = "3257bc"
 mappings = [ "C-critical" ]
