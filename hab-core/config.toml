@@ -1,4 +1,4 @@
-repositories = [ "habitat-sh/habitat", "habitat-sh/sentinel", "habitat-sh/builder", "habitat-sh/protocols", "habitat-sh/core" ]
+repositories = [ "habitat-sh/habitat", "habitat-sh/sentinel", "habitat-sh/builder", "habitat-sh/protocols", "habitat-sh/core", "habitat-sh/cloud-environments"]
 
 [[label]]
 name = "A-supervisor"
@@ -176,13 +176,21 @@ color = "c3c6c8"
 mappings = [ "P-windows" ]
 
 [[label]]
-name = "V-devx"
-color = "0fb0bf"
-
-[[label]]
 name = "V-bldr"
 color = "0fb0bf"
 
 [[label]]
+name = "V-devx"
+color = "0fb0bf"
+
+[[label]]
+name = "V-infra"
+color = "0fb0bf"
+
+[[label]]
 name = "V-sup"
+color = "0fb0bf"
+
+[[label]]
+name = "V-web"
 color = "0fb0bf"
