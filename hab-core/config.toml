@@ -146,6 +146,10 @@ name = "T-help-wanted"
 color = "d62f3f"
 
 [[label]]
+name = "T-emergent"
+color = "d62f3f"
+
+[[label]]
 name = "P-1"
 color = "3257bc"
 mappings = [ "C-critical" ]
