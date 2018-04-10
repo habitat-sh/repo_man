@@ -195,5 +195,9 @@ name = "V-sup"
 color = "0fb0bf"
 
 [[label]]
-name = "V-web"
+name = "V-front-end"
+color = "0fb0bf"
+
+[[label]]
+name = "V-core-plans"
 color = "0fb0bf"
