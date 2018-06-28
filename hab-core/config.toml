@@ -1,4 +1,4 @@
-repositories = [ "habitat-sh/habitat", "habitat-sh/sentinel", "habitat-sh/builder", "habitat-sh/protocols", "habitat-sh/core", "habitat-sh/cloud-environments"]
+repositories = [ "habitat-sh/habitat", "habitat-sh/sentinel", "habitat-sh/builder", "habitat-sh/core", "habitat-sh/cloud-environments"]
 
 [[label]]
 name = "A-supervisor"
@@ -92,9 +92,9 @@ name = "E-mentored"
 color = "4296b4"
 
 [[label]]
-name = "E-epic"
-color = "4296b4"
-mappings = [ "E-helldive", "Epic" ]
+name = "Epic"
+color = "3e4b9e"
+mappings = [ "E-helldive", "E-epic" ]
 
 [[label]]
 name = "L-rust"
@@ -208,12 +208,12 @@ color = "0e8a16"
 
 [[label]]
 name = "X-feature"
-color = "ff00ff"
+color = "c61d6f"
 
 [[label]]
 name = "X-fix"
-color = "ff00ff"
+color = "c61d6f"
 
 [[label]]
 name = "X-change"
-color = "ff00ff"
+color = "c61d6f"
