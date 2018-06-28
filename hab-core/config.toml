@@ -208,12 +208,12 @@ color = "0e8a16"
 
 [[label]]
 name = "X-feature"
-color = "ff00ff"
+color = "c61d6f"
 
 [[label]]
 name = "X-fix"
-color = "ff00ff"
+color = "c61d6f"
 
 [[label]]
 name = "X-change"
-color = "ff00ff"
+color = "c61d6f"
