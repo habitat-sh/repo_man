@@ -201,3 +201,19 @@ color = "0fb0bf"
 [[label]]
 name = "V-core-plans"
 color = "0fb0bf"
+
+[[label]]
+name = "Expeditor: Exclude from Changelog"
+color = "0e8a16"
+
+[[label]]
+name = "X-feature"
+color = "ff00ff"
+
+[[label]]
+name = "X-fix"
+color = "ff00ff"
+
+[[label]]
+name = "X-change"
+color = "ff00ff"
