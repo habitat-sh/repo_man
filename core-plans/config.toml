@@ -123,6 +123,10 @@ name = "S-needs-testing"
 color = "EB6852"
 
 [[label]]
+name = "T-Hacktoberfest"
+color = "f45942"
+
+[[label]]
 name = "T-DO-NOT-MERGE"
 color = "d62f3f"
 mappings = [ "S-DO-NOT-MERGE" ]
