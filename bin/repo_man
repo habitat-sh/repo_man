@@ -5,9 +5,23 @@ require "netrc"
 require "octokit"
 require "toml"
 require "pp"
+require "faraday-http-cache"
+require "tty-spinner"
 
 def github
-  @github ||= Octokit::Client.new(:netrc => true)
+  @github ||= begin
+    faraday = Faraday::RackBuilder.new do |builder|
+      builder.use Faraday::HttpCache
+      builder.use Octokit::Response::RaiseError
+      builder.adapter Faraday.default_adapter
+    end
+
+    connection = Octokit::Client.new(netrc: true)
+    connection.auto_paginate = true
+    connection.middleware = faraday
+    connection.per_page = 100
+    connection
+  end
 end
 
 # Some ground rules:
@@ -15,23 +29,27 @@ end
 # To do mappings, we'll create the new label, and then for each issue
 # with the old label, we'll add the new label, then remove the old one.
 def ensure_label(repository, label)
-  mappings = label.fetch("mappings") {[]}
+  mappings = label.fetch("mappings") { [] }
   all = github.labels(repository)
 
   if label["delete"]
-    puts "Deleted label: '#{label['name']}'"
-    github.delete_label!(repository, label["name"])
+    puts "  Deleted label: '#{label['name']}'" if github.delete_label!(repository, label["name"])
     return
   end
 
-  current = all.select { |cur| cur[:name] == label["name"]}.first
+  current = all.select { |cur| cur[:name] == label["name"] }.first
   if current.nil?
-    github.add_label(repository, label["name"], label["color"])
-    puts "Successfully added label"
+    github.add_label(repository, label["name"], label["color"], description: label["description"])
+    puts "  Successfully added label"
   else
     unless current[:color] == label["color"]
       github.update_label(repository, label["name"], color: label["color"])
-      puts "Updated color for #{label['name']}"
+      puts "  Updated color for #{label['name']}"
+    end
+
+    unless label["description"].nil? || current[:description] == label["description"]
+      github.update_label(repository, label["name"], description: label["description"])
+      puts "  Updated description for #{label['name']}"
     end
   end
 
@@ -40,10 +58,10 @@ def ensure_label(repository, label)
     puts "Working on #{previous} mapping for #{label['name']}"
     count = 0
     issues_with(repository, "label", previous) do |issue|
-      puts "Updating issue #{issue}"
-      puts "Adding label: '#{label['name']}'"
+      puts "  Updating issue #{issue}"
+      puts "  Adding label: '#{label['name']}'"
       github.add_labels_to_an_issue(repository, issue, [label["name"]])
-      puts "Removing label '#{previous}'"
+      puts "  Removing label '#{previous}'"
       github.remove_label(repository, issue, previous)
       count += 1
       puts "-----"
@@ -54,10 +72,10 @@ def ensure_label(repository, label)
     # that should be OK
     remaining = issues_with(repository, "label", previous)
     if remaining.empty? || remaining.length == count
-      puts "Deleting label '#{previous}' from #{repository}"
+      puts "  Deleting label '#{previous}' from #{repository}"
       github.delete_label!(repository, previous)
     else
-      puts "There are remaining issues returned from search - you should manually check that the '#{previous}' label has no tickets assigned (or rerun this script in a few minutes time)"
+      puts "There are remaining issues returned from search - you should manually check that the '#{previous}' label has no tickets assigned (or rerun this command in a few minutes time)"
     end
   end
 end
@@ -69,12 +87,12 @@ def ensure_milestone(repository, milestone)
   mappings = milestone.delete("mappings") { [] }
   all = github.milestones(repository)
 
-  current = all.select { |cur| cur[:title] == milestone["name"]}.first
+  current = all.select { |cur| cur[:title] == milestone["name"] }.first
   new = current
 
   if current.nil?
     new = github.create_milestone(repository, milestone["name"], description: milestone["description"])
-    puts "Successfully added milestone"
+    puts "  Successfully added milestone"
   else
     unless current[:title] == milestone["name"] && current[:description] == milestone["description"]
       github.update_milestone(repository, current[:number], title: milestone["name"], description: milestone["description"])
@@ -88,7 +106,7 @@ def ensure_milestone(repository, milestone)
 
     count = 0
     issues_with(repository, "milestone", previous) do |issue|
-      puts "Setting milestone on issue #{issue}"
+      puts "  Setting milestone on issue #{issue}"
       github.update_issue(repository, issue, milestone: new[:number])
       count += 1
       puts "-----"
@@ -99,10 +117,10 @@ def ensure_milestone(repository, milestone)
     # that should be OK
     remaining = issues_with(repository, "milestone", previous)
     if remaining.empty? || remaining.length == count
-      puts "Deleting milestone '#{previous}' from #{repository}"
+      puts "  Deleting milestone '#{previous}' from #{repository}"
       github.delete_milestone(repository, previous_number)
     else
-      puts "There are remaining issues returned from search - you should manually check that the '#{previous}' milestone has no tickets assigned (or rerun this script in a few minutes time)"
+      puts "There are remaining issues returned from search - you should manually check that the '#{previous}' milestone has no tickets assigned (or rerun this command in a few minutes time)"
     end
   end
 end
@@ -122,18 +140,56 @@ def issues_with(repository, type, label, &block)
   issues
 end
 
-Octokit.auto_paginate = true
+# rescues github timeouts so we can wait and try again
+def ensure_with_retries(type, repo, object)
+  attempts = 1
+  send("ensure_#{type}".to_sym, repo, object)
+rescue Octokit::BadGateway => e
+  raise "Too many errors received from Github. Cannot continue! #{e}" if attempts > 10
+  sleep 5
+  attempts += 1
+  retry
+rescue Octokit::TooManyRequests
+  time_until_limit_over = github.rate_limit["resets_in"] + 5 # 5 more to be safe
+  decorator = TTY::Spinner.new("  :spinner GitHub API limit reached! Waiting #{time_until_limit_over} seconds before making the next request", format: :spin)
+  decorator.run { sleep time_until_limit_over }
+  retry
+end
 
-options = {}
+# either fetch repos from the org specified in the config file or
+# from the repos in the config
+#
+# @returns [Array]
+def repos(config_hash)
+  if config_hash["organizations"]
+    repos = []
+    config_hash["organizations"]["orgs"].each do |org|
+      # grab all the full repo names in this org. If no type is specified use public and also skip the forks
+      # we also skip anything in the blacklist array
+      repos << github.org_repos(org, type: config_hash["organizations"]["type"] || "public")
+                     .collect { |x| x["full_name"] unless x["fork"] || x["archived"] || (config_hash["organizations"]["blacklist"] && config_hash["organizations"]["blacklist"].include?(x["full_name"])) }
+    end
+    repo_list = repos.flatten.compact.sort # return a single sorted array w/o nils
+    puts "Based on the provided org(s) (#{config_hash["organizations"]["orgs"].join(',')}) managing the following repos: #{repo_list.join(', ')}"
+    repo_list
+  elsif config_hash["repositories"]
+    config_hash["repositories"]
+  else
+    puts "Config does not include either 'repositories' or 'organizations' sections. Cannot continue!"
+    exit!
+  end
+end
+
+opt_hash = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: repo_man [options]"
 
   opts.on("-c", "--config-file FILE", "The configuration to use") do |cfg|
-    options["config"] = cfg
+    opt_hash["config"] = cfg
   end
 
   opts.on("-v", "--verbose", "Make repo man verbose") do
-    options["verbose"] = true
+    opt_hash["verbose"] = true
   end
 
   opts.on("-h", "--help", "Prints this help") do
@@ -142,18 +198,18 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-config = TOML.load_file(options["config"])
-config['repositories'].each do |repo|
-  unless config['label'].nil?
-    config['label'].each do |label|
+config = TOML.load_file(opt_hash["config"])
+repos(config).each do |repo|
+  unless config["label"].nil?
+    config["label"].each do |label|
       puts "Working on label '#{label['name']}' for '#{repo}'"
-      ensure_label(repo, label)
+      ensure_with_retries("label", repo, label)
     end
   end
-  unless config['milestones'].nil?
-    config['milestones'].each do |milestone|
+  unless config["milestones"].nil?
+    config["milestones"].each do |milestone|
       puts "Working on milestone '#{milestone['name']}' for '#{repo}'"
-      ensure_milestone(repo, milestone)
+      ensure_with_retries("milestone", repo, milestone)
     end
   end
 end
