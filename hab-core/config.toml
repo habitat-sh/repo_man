@@ -1,4 +1,4 @@
-repositories = [ "habitat-sh/habitat", "habitat-sh/sentinel", "habitat-sh/builder", "habitat-sh/core", "habitat-sh/cloud-environments"]
+repositories = [ "habitat-sh/habitat" ]
 
 [[label]]
 name = "A-supervisor"
