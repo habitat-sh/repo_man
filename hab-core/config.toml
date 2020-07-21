@@ -1,19 +1,123 @@
 repositories = [ "habitat-sh/habitat" ]
 
+# Changelog
+########################################################################
+
+[[label]]
+name = "Changelog: New Feature"
+color = "c61d6f"
+description = "PRs that add a new feature"
+mappings = [ "X-feature" ]
+
+[[label]]
+name = "Changelog: Bug Fix"
+color = "c61d6f"
+description = "PRs that fix an existing bug"
+mappings = [ "X-fix" ]
+
+[[label]]
+name = "Changelog: Behavioral Change"
+color = "c61d6f"
+description = "PRs that are classified as a change to existing behavior"
+mappings = [ "X-change" ]
+
+# Component
+########################################################################
+
+[[label]]
+name = "Component: Supervisor"
+color = "87b09a"
+description = "Related to the Habitat Supervisor (core/hab-sup) component"
+mappings = [ "A-supervisor" ]
+
+[[label]]
+name = "Component: Launcher"
+color = "87b09a"
+description = "Related to the Habitat Launcher (core/hab-launcher) component"
+mappings = [ "A-launcher" ]
+
+[[label]]
+name = "Component: Studio"
+color = "87b09a"
+description = "Related to the Habitat Studio (core/hab-studio) component"
+mappings = [ "A-studio" ]
+
+[[label]]
+name = "Component: CLI"
+color = "87b09a"
+description = "Related to the Habitat CLI (core/hab) component"
+mappings = [ "A-cli" ]
+
+# Platform
+########################################################################
+
+[[label]]
+name = "Platform: Linux"
+color = "c3c6c8"
+description = "Deals with Linux-specific behavior"
+mappings = [ "I-linux" ]
+
+[[label]]
+name = "Platform: Windows"
+color = "c3c6c8"
+description = "Deals with Windows-specific behavior"
+mappings = [ "I-windows" ]
+
+[[label]]
+name = "Platform: macOS"
+color = "c3c6c8"
+description = "Deals with macOS-specific behavior"
+mappings = [ "I-macOS" ]
+
+# Type
+########################################################################
+
+[[label]]
+name = "Type: Bug"
+color = "ff9012"
+description = "Issues that describe broken functionality"
+mappings = [ "C-bug" ]
+
+[[label]]
+name = "Type: Chore"
+color = "ff9012"
+description = "Issues for general code and infrastructure maintenance"
+mappings = [ "C-chore" ]
+
+[[label]]
+name = "Type: Feature"
+color = "ff9012"
+description = "Issues that describe a new desired feature"
+mappings = [ "C-feature" ]
+
+# Source
+########################################################################
+
+[[label]]
+name = "Source: Internal"
+color = "0fb0bf"
+description = "Issues raised by Chef employees"
+
+[[label]]
+name = "Source: External"
+color = "0fb0bf"
+description = "Issues raised by non-Chef employees"
+
+########################################################################
+# OLD LABELS
+########################################################################
+
 [[label]]
 name = "A-supervisor"
-color = "87B09A"
-mappings = [ "Supervisor" ]
+delete = true
 
 [[label]]
 name = "A-studio"
-color = "87B09A"
-mappings = [ "Studio" ]
+delete = true
 
 [[label]]
 name = "A-builder"
-color = "87B09A"
-mappings = [ "Builder" ]
+delete = true
 
 [[label]]
 name = "A-documentation"
@@ -22,8 +126,7 @@ mappings = [ "Documentation" ]
 
 [[label]]
 name = "A-cli"
-color = "87B09A"
-mappings = [ "Hab CLI" ]
+delete = true
 
 [[label]]
 name = "A-exporter"
@@ -32,8 +135,7 @@ mappings = [ "exporters" ]
 
 [[label]]
 name = "A-launcher"
-color = "87B09A"
-mappings = [ "launcher" ]
+delete = true
 
 [[label]]
 name = "A-habitat.sh"
@@ -52,18 +154,15 @@ mappings = [ "scaffoldings" ]
 
 [[label]]
 name = "C-feature"
-color = "ff9012"
-mappings = [ "Feature", "enhancement" ]
+delete = true
 
 [[label]]
 name = "C-bug"
-color = "ff9012"
-mappings = [ "Bug", "bug" ]
+delete = true
 
 [[label]]
 name = "C-chore"
-color = "ff9012"
-mappings = [ "Chore" ]
+delete = true
 
 [[label]]
 name = "C-release"
@@ -169,22 +268,19 @@ color = "3257bc"
 
 [[label]]
 name = "I-linux"
-color = "c3c6c8"
-mappings = [ "P-linux" ]
+delete = true
 
 [[label]]
 name = "I-macOS"
-color = "c3c6c8"
-mappings = [ "P-macOS" ]
+delete = true
 
 [[label]]
 name = "I-windows"
-color = "c3c6c8"
-mappings = [ "P-windows" ]
+delete = true
 
 [[label]]
 name = "V-bldr"
-color = "0fb0bf"
+delete = true
 
 [[label]]
 name = "V-devx"
@@ -212,12 +308,12 @@ color = "0e8a16"
 
 [[label]]
 name = "X-feature"
-color = "c61d6f"
+delete = true
 
 [[label]]
 name = "X-fix"
-color = "c61d6f"
+delete = true
 
 [[label]]
 name = "X-change"
-color = "c61d6f"
+delete = true
