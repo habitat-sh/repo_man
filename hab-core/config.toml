@@ -103,6 +103,15 @@ name = "Source: External"
 color = "0fb0bf"
 description = "Issues raised by non-Chef employees"
 
+# Other
+########################################################################
+
+[[label]]
+name = "Documentation"
+color = "000000"
+description = "Flags an issue / PR for attention by the technical documentation team"
+mappings = [ "A-documentation" ]
+
 ########################################################################
 # OLD LABELS
 ########################################################################
@@ -121,8 +130,7 @@ delete = true
 
 [[label]]
 name = "A-documentation"
-color = "87B09A"
-mappings = [ "Documentation" ]
+delete = true
 
 [[label]]
 name = "A-cli"
